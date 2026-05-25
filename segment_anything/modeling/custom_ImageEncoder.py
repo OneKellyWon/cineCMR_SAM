@@ -137,8 +137,6 @@ class Block_timesformer(nn.Module):
         # else:
         #     print('we do not have cross_frame_attention')
 
-
-
         xt = x + res_temporal
         
         ## Spatial
@@ -618,8 +616,10 @@ class ImageEncoderViT_medivista(nn.Module):
 
         x4 = rearrange(x4, "b c h w -> b h w c") # (BT), H, W, C
 
+        x = x4
+
         for blk in self.blocks: 
-            x = blk(x4)
+            x = blk(x)
         x = self.out_conv(x.permute(0, 3, 1, 2)) 
         return x, [x1,x2,x3]
         
