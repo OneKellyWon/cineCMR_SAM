@@ -43,7 +43,7 @@ def train_loop(model: torch.nn.Module,
 
     for i in range(len(data_loader_train)):
         current_data_loader = data_loader_train[i] # data_loader_train is [data_loader_sax, data_loader_lax]
-        current_slice_type = 'sax' if i == 0 else 'lax'
+        current_slice_type = current_data_loader.dataset.view_type
         print('in training current slice type: ', current_slice_type)
         
         for data_iter_step, batch in enumerate(metric_logger.log_every(current_data_loader ,args.print_freq, header)):

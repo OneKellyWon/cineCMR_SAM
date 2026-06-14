@@ -36,7 +36,7 @@ def build_dataset(args, view_type, patient_list_file, index_list, text_prompt_fe
 
                                   seg_include_lowest_pixel = 1,
                                   turn_zero_seg_slice_into = args.turn_zero_seg_slice_into,
-                                  only_myo = True,
+                                  only_myo = only_myo,
                                   image_shape = [args.img_size,args.img_size],
                                   shuffle = shuffle, 
                                   augment = augment,)

@@ -156,7 +156,7 @@ class Dataset_CMR(torch.utils.data.Dataset):
                 if self.view_type == 'sax':
                     _,_, self.centroid = Data_processing.center_crop( image_loaded[:,:,d // 2, ed], seg_loaded[:,:,d//2, ed], self.image_shape, according_to_which_class = self.center_crop_according_to_which_class, centroid = None)
                 else:
-                    _,_, self.centroid = Data_processing.center_crop( image_loaded[:,:, 0,0], seg_loaded[:,:, 0,0], self.image_shape, according_to_which_class = self.center_crop_according_to_which_class , centroid = None)
+                    _,_, self.centroid = Data_processing.center_crop( image_loaded[:,:, 0,ed], seg_loaded[:,:, 0,ed], self.image_shape, according_to_which_class = self.center_crop_according_to_which_class , centroid = None)
   
                 # random crop (randomly shift the centroid)
                 if self.augment == True and np.random.uniform(0,1)  < self.augment_frequency:
@@ -255,8 +255,19 @@ class Dataset_CMR(torch.utils.data.Dataset):
             annotation_frame_list = []
 
         # also add infos from patient list spread sheet
+        # also add infos from patient list spread sheet
         patient_id = os.path.basename(os.path.dirname(image_filename))
-        row = self.patient_list_spreadsheet.loc[self.patient_list_spreadsheet['patient_id'] == patient_id]
+
+        patient_id_series = self.patient_list_spreadsheet["patient_id"].astype(str)
+        row = self.patient_list_spreadsheet.loc[patient_id_series == patient_id]
+
+        # Excel may read IDs like "001" as numeric 1, so retry with zero padding.
+        if row.empty:
+            normalized_patient_id_series = patient_id_series.str.replace(r"\.0$", "", regex=True).str.zfill(len(patient_id))
+            row = self.patient_list_spreadsheet.loc[normalized_patient_id_series == patient_id]
+
+        if row.empty:
+            raise ValueError(f"Cannot find patient_id {patient_id} in {self.patient_list_spreadsheet}")
 
         # prepare the box feature (bounding box):
         if self.have_manual_seg is True: # automatically generate bounding box from manual segmentation --> it's for training
