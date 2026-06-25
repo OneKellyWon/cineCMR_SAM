@@ -11,4 +11,5 @@ singularity/
 
 example_data/models/
 example_data/pretrained_sam/
-
+example_data/data/MnM2_LAX*/
+example_data/data/Patient_list/patient_list_mnm2_lax*.xlsx
