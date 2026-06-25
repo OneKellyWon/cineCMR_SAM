@@ -66,10 +66,16 @@ def train_loop(model: torch.nn.Module,
 
                 subset_params = [p for p in model.parameters()]
                 
-                loss_scaler(loss, optimizer, parameters=subset_params,
-                        update_grad=(data_iter_step + 1) % accum_iter == 0)  
+                is_update_step = (
+                    (data_iter_step + 1) % accum_iter == 0
+                    or data_iter_step == len(current_data_loader) - 1
+                )
+
+                loss_for_backward = loss / accum_iter
+                loss_scaler(loss_for_backward, optimizer, parameters=subset_params,
+                        update_grad=is_update_step)
             
-                if (data_iter_step + 1) % accum_iter == 0 or data_iter_step == len(current_data_loader) - 1:
+                if is_update_step:
                     optimizer.zero_grad()
 
                 torch.cuda.synchronize()
